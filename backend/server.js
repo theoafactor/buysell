@@ -1,11 +1,17 @@
 const express = require("express");
+const UserClass = require("./User/User");
+const cors = require("cors");
 const jwt = require("jsonwebtoken");
+
+
+const User = new UserClass;
 
 
 
 const server = express();
 
 server.use(express.json())
+server.use(cors());
 
 const verifyToken = () => {
 
@@ -42,6 +48,37 @@ server.post("/login", (request, response) => {
 
     })
     
+
+})
+
+
+server.post("/register-user", async (request, response) => {
+    let fullname = request.body.fullname;
+    let email  = request.body.email;
+    let password = request.body.password;
+
+
+    const feedback = await User.registerUser(fullname, email, password);
+
+    if(feedback.code == "success"){
+        response.send({
+            message: feedback.message,
+            code: "success",
+            type: "create-account"
+        })
+    }else{
+
+        response.send({
+            message: 'Could not create account',
+            reason: feedback.message,
+            code: "error"
+        })
+
+
+    }
+
+
+
 
 })
 
