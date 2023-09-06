@@ -11,6 +11,7 @@ function Register(){
         email: "",
         password: "",
         password_confirm: "",
+        is_loading: false,
         form_errors: []
     })
 
@@ -108,6 +109,12 @@ function Register(){
         }
 
         if(does_error_exist !== true){
+
+            // bring in a loader ...
+            setRegisterState({
+                ... registerState,
+                is_loading: true
+            });
             
             const feedback = await axios.post("http://localhost:1234/register-user", {
                 fullname: registerState.fullname,
@@ -117,6 +124,11 @@ function Register(){
 
 
             if(feedback){
+                // stop the loader
+                setRegisterState({
+                    ... registerState,
+                    is_loading: false
+                })
                 console.log(feedback)
             }
 
@@ -148,8 +160,9 @@ function Register(){
                             <h4>Create Account</h4>
                             <hr />
 
+                            { registerState.is_loading === true ? <div>Please wait ...</div>: ""}
                 
-
+                
 
                             <form method="POST" onSubmit={createUserAccount}>
 

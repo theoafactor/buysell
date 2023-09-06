@@ -1,5 +1,6 @@
 const mongodb = require("mongodb");
 const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 
@@ -66,15 +67,48 @@ class User{
     }
 
 
+    async createToken(payload, expires = null){
+
+        const token = jwt.sign(payload, "rtrrgbgbvfgrfbcvvvvbvbvbvgfft", { expiresIn: expires })
+
+        return token;
+
+    }
+
+
     async sendVerificationEmail(user){
         let fullname = user.fullname;
         let email = user.email;
+
+        // create jwt 
+        // - use the fullname and email to generate the token
+        const payload = {
+            fullname: fullname,
+            email: email,
+            extras: "/user/verification/email"
+        }
+        const token = await this.createToken(payload, "7m")
+
+        console.log(token)
+
+        // build the body of the email
+        const verification_link = `http://localhost:5173/users/verification?verificationkey=${token}`;
+        const email_message = `
+                            <h4>Please Verify Your Email ${fullname}!</h4>
+                            <p>Hello there, please click on the link to verify your email: 
+                            <a href='${verification_link}' target="_blank">Click here to verify</a>
+                            </p>
+                            <hr>
+                            <p>With love from BuySell</p>
+                            ;
+        
+        `
 
         const info = await transporter.sendMail({
             from: '"BuySell 👻" <theoafactor@gmail.com>', // sender address
             to: email, // list of receivers
             subject: "Please verify your email address", // Subject line
-            html: "<b>Hello world?</b>", // html body
+            html: email_message, // html body
           });
 
 
@@ -103,12 +137,43 @@ class User{
             // found .. the user exists
             return {
                 message: "User with the email exists already",
-                code: "duplicate-account-error"
+                code: "duplicate-account-error",
+                data: find_feedback
             }
         }else{
             return {
                 message: "User with the email does not exist",
-                code: "not-exist"
+                code: "not-exist",
+                data: null
+            }
+
+        }
+
+    }
+
+    /**
+     * Updates the user;s is_verified status
+     * @param {*} email 
+     * @param {*} update_to 
+     */
+    async updateUserVerificationStatus(email, update_to = false){
+
+        const feedback = await client.db(process.env.DB_NAME).collection("users").updateOne({email: email}, {$set: {is_verified: update_to}})
+
+        console.log("Updated feedback: ", feedback);
+
+
+        if(feedback.matchedCount === 1){
+            return {
+                message: "User status updated",
+                code: "success",
+                data: feedback
+            }
+        }else{
+            return {
+                message: "User's status could not be updated",
+                code: "error",
+                data: null
             }
 
         }
