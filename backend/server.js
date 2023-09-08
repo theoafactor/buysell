@@ -1,11 +1,14 @@
 const express = require("express");
 const UserClass = require("./User/User");
+const ProductClass = require("./Product/Product");
 const bcrypt = require("bcrypt");
+const multer  = require('multer')
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 
 
 const User = new UserClass;
+const Product = new ProductClass;
 
 
 
@@ -18,12 +21,72 @@ const verifyToken = () => {
 
 }
 
+const storage = multer.diskStorage({
+    destination: function(request, file, destinationCallback){
+
+        return destinationCallback(null, "./public/products")
+    },
+
+    filename: function(request, file, filenameCallback){
+
+        let name_of_file = file.originalname;
+
+        return filenameCallback(null, `${Date.now()}_${name_of_file}`)
+    }
+})
+
+const multerMiddeware = multer({
+    storage: storage
+});
+
+
 server.get("/", (request, response) => {
 
     response.send({
         message: "API works fine",
         code: "success"
     })
+
+});
+
+
+
+server.post("/add_product", multerMiddeware.single("product_image"), async (request, response) => {
+
+
+    let product_name = request.body.product_name;
+    let product_description = request.body.product_description;
+    let product_price = request.body.product_price;
+
+    let product_image_path = request.file.path;
+
+    const product_object = {
+            product_name: product_name,
+            product_description: product_description,
+            product_price: product_price,
+            product_image_path: product_image_path
+    }
+
+    // save to database
+    const save_product_feedback = await Product.saveProductToDb(product_object);
+
+    if(save_product_feedback.code === "success"){
+        response.send({
+            message: "Product added successfully!",
+            code: "success",
+            data: save_product_feedback
+        })
+    }else{
+
+        response.send({
+            message: "Product could not be added!",
+            code: "error",
+            data: null
+        })
+
+
+    }
+
 
 });
 

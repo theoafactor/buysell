@@ -8,6 +8,7 @@ import ResendVerification from "./Components/ResendVerification/ResendVerificati
 
 import './css/styles.css'
 import { AuthProvider } from "./Auth/Auth"
+import AddProduct from "./Components/AddProduct/AddProduct"
 
 function App(){
 
@@ -22,6 +23,7 @@ function App(){
             <Route path="/user" element={<User />}></Route>
             <Route path="/users/verification" element={<VerifyUser />}></Route>
             <Route path="/resend_verification_email" element={<ResendVerification />}></Route>
+            <Route path="/user/products/add-product" element={<AddProduct />}></Route>
         </Routes>
       </AuthProvider>
 

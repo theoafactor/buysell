@@ -1,0 +1,8 @@
+.products-settings{
+    list-style-type: none;
+    gap: 10px;
+}
+
+.products-settings li {
+    font-weight: bolder;
+}

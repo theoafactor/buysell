@@ -1,7 +1,7 @@
 import Nav from "../../Sections/Nav/Nav"
 import Footer from "../../Sections/Footer/Footer"
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { useAuth } from "../../Auth/Auth"
 
@@ -15,8 +15,7 @@ function Login(){
   })
 
   const use_auth = useAuth();
-
-
+  const navigate = useNavigate();
 
 
   const loginUser = async (event) => {
@@ -75,6 +74,17 @@ function Login(){
    
 
   }
+
+
+  useEffect(() => {
+
+    if(use_auth.user.is_user_logged === true){
+        navigate("/user", {
+          replace: true
+        })
+    }
+
+  })
 
 
     return (
