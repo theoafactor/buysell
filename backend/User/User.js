@@ -1,4 +1,5 @@
 const mongodb = require("mongodb");
+const ObjectId = mongodb.ObjectId;
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -23,6 +24,44 @@ class User{
 
     constructor(){
         //
+    }
+
+
+    /**
+     * Logs in the user internally by saving the token to the database
+     * @param {*} email 
+     * @param {*} token 
+     */
+    async loginUserInternally(email,token){
+
+       try{
+
+            const login_feedback = await client.db(process.env.DB_NAME).collection("users").updateOne({ email: email }, { $set: { token: token } });
+
+            if(login_feedback.matchedCount === 1){
+                return {
+                    message: "User logged in with token",
+                    code: "success", 
+                    data: login_feedback
+                }
+            }else{
+                return {
+                    message: "User could not be logged in",
+                    code: "error", 
+                    data: null
+                }
+            }
+
+       }catch(error){
+        return {
+            message: "User could not be logged in",
+            reason: error.message,
+            code: "error", 
+            data: null
+        }
+
+       }
+
     }
 
 
@@ -179,6 +218,26 @@ class User{
         }
 
     }
+
+
+    resolveUserId(mongoObjectId){
+        
+        const user_id = new ObjectId(mongoObjectId).toString();
+
+        if(user_id){
+            
+            return user_id;
+
+        }else{
+
+            return null;
+
+        }
+
+
+
+    }
+
 
 
 

@@ -1,6 +1,7 @@
 import { useAuth } from "../../Auth/Auth"
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 import Nav from "../../Sections/Nav/Nav"
 import axios from "axios";
 
@@ -29,6 +30,9 @@ function AddProduct(){
 
             if(user_data !== null){
                 setCurrentUser(user_data)
+
+
+
             }else{
 
                 navigate("/", {
@@ -51,7 +55,8 @@ function AddProduct(){
          product_price: "",
          product_image: null,
          is_loading: false,
-         form_errors: null
+         form_errors: null,
+         message: ""    
          
      });
 
@@ -66,15 +71,37 @@ function AddProduct(){
         form_data.append("product_price", product.product_price);
         form_data.append("product_image", product.product_image);
 
+        const user_token = Cookies.get("buysell_token");
 
-        const add_product_feedback = await axios.post("http://localhost:1234/add_product", form_data);
+        setProduct({
+            ... product,
+            is_loading: true,
+            message: "Please wait ..."
+        })
+        const add_product_feedback = await axios.post("http://localhost:1234/add_product", form_data, {
+            headers: {
+                "Authorization": `Bearer ${user_token}`
+            }
+        });
 
 
         if(add_product_feedback.data.code === "success"){
             console.log("Product added")
+            setProduct({
+                ... product,
+                is_loading: false,
+                message: "Product added"
+            })
         }else{
             console.log("Product could not be added");
+            setProduct({
+                ... product,
+                is_loading: false, 
+                message: "Product could not be added"
+            })
         }
+
+       
 
 
 
@@ -147,6 +174,7 @@ function AddProduct(){
            
             
             <div className="mt-3">
+                        {product.message}
                     <form className="form"  method="POST" onSubmit={addProduct} encType="multipart/form-data">
                         <div className="form-group">
                             <label>Product name</label>

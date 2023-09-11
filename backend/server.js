@@ -5,6 +5,8 @@ const bcrypt = require("bcrypt");
 const multer  = require('multer')
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
+
 
 
 const User = new UserClass;
@@ -16,27 +18,67 @@ const server = express();
 
 server.use(express.json())
 server.use(cors());
+server.use(express.static("public"));
 
-const verifyToken = () => {
 
+const verifyToken = async (request, response, next) => {
+
+    const authorization = request.headers["authorization"];
+    const token = authorization.split(" ")[1];
+
+   try{
+        const data = jwt.verify(token, "rtrrgbgbvfgrfbcvvvvbvbvbvgfft");
+
+        request.token = token;
+        request.email = data.user.email;
+
+         // get id of the user with the email 
+        const get_user_feedback = await User.checkUserExists(request.email);
+
+        console.log(get_user_feedback);
+
+        if(get_user_feedback.code === "duplicate-account-error"){
+             const user_id = User.resolveUserId(get_user_feedback.data._id);
+             request.user_id = user_id;
+        }
+
+   }catch(error){
+     response.send({
+            message: "Invalid token",
+            reason: error.message,
+            code: "authentication-error"
+        })
+
+
+   }
+
+    next();
 }
 
-const storage = multer.diskStorage({
-    destination: function(request, file, destinationCallback){
 
-        return destinationCallback(null, "./public/products")
-    },
 
-    filename: function(request, file, filenameCallback){
+const multerMiddleware = multer({
+    storage: multer.diskStorage({
+        destination: function(request, file, destinationCallback){
+    
+    
 
-        let name_of_file = file.originalname;
-
-        return filenameCallback(null, `${Date.now()}_${name_of_file}`)
-    }
-})
-
-const multerMiddeware = multer({
-    storage: storage
+            const user_id = request.user_id;
+    
+            if(fs.existsSync(`./public/products/${user_id}`) !== true){
+                fs.mkdirSync(`./public/products/${user_id}`);
+            }
+    
+            return destinationCallback(null, `./public/products/${user_id}`)
+        },
+    
+        filename: function(request, file, filenameCallback){
+    
+            let name_of_file = file.originalname;
+    
+            return filenameCallback(null, `${Date.now()}_${name_of_file}`)
+        }
+    })
 });
 
 
@@ -50,8 +92,36 @@ server.get("/", (request, response) => {
 });
 
 
+server.get("/user/get_products", verifyToken, async (request, response) => {
+    const user_id  = request.user_id;
 
-server.post("/add_product", multerMiddeware.single("product_image"), async (request, response) => {
+   const user_products = await Product.getUserProducts(user_id);
+
+   console.log(user_products)
+
+    if(user_products.code === "success"){
+        response.send({
+            message: "Products retrieved",
+            code: "success",
+            data: user_products.data
+        })
+    }else{
+
+        response.send({
+            message: "Products could not be retrieved",
+            code: "error",
+            data: null
+        })
+
+    }
+
+
+
+})
+
+
+
+server.post("/add_product", [verifyToken, multerMiddleware.single("product_image")], async (request, response) => {
 
 
     let product_name = request.body.product_name;
@@ -60,12 +130,23 @@ server.post("/add_product", multerMiddeware.single("product_image"), async (requ
 
     let product_image_path = request.file.path;
 
+    let user_email = request.email;
+    let user_id = request.user_id
+
+   
+
+
     const product_object = {
             product_name: product_name,
             product_description: product_description,
             product_price: product_price,
-            product_image_path: product_image_path
+            product_image_path: product_image_path,
+            user_id: user_id
     }
+
+    const token = request.token;
+
+
 
     // save to database
     const save_product_feedback = await Product.saveProductToDb(product_object);
@@ -255,20 +336,39 @@ server.post("/login", async (request, response) => {
                 password: password
             }
 
-            jwt.sign({user}, "rtrrgbgbvfgrfbcvvvvbvbvbvgfft", (error, token) => {
+            jwt.sign({user}, "rtrrgbgbvfgrfbcvvvvbvbvbvgfft", async (error, token) => {
 
                 console.log(token);
+
+                //save the token to the user
+                const login_feedback = await User.loginUserInternally(email, token);
+
+                if(login_feedback.code === "success"){
+                    response.send({
+                        message: "User logged in",
+                        code: "login-success",
+                        token: token,
+                        data: {
+                            fullname: check_feedback.data.fullname,
+                            email: check_feedback.data.email,
+                            is_verified: check_feedback.data.is_verified
+                        }
+                    })
+                }else{
+
+                    response.send({
+                        message: "User could not be logged in ",
+                        reason: login_feedback.data,
+                        code: "login-error",
+                        data: null
+                    })
+
+
+                }
+
+
         
-                response.send({
-                    message: "User logged in",
-                    code: "login-success",
-                    token: token,
-                    data: {
-                        fullname: check_feedback.data.fullname,
-                        email: check_feedback.data.email,
-                        is_verified: check_feedback.data.is_verified
-                    }
-                })
+               
         
             })
 
