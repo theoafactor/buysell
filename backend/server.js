@@ -95,15 +95,42 @@ server.get("/", (request, response) => {
 server.get("/user/get_products", verifyToken, async (request, response) => {
     const user_id  = request.user_id;
 
-   const user_products = await Product.getUserProducts(user_id);
+ 
 
-   console.log(user_products)
+
+
+   let user_products = await Product.getUserProducts(user_id);
+
+
 
     if(user_products.code === "success"){
+
+        user_products = user_products.data;
+
+
+        const all_user_products = [];
+        for(let i = 0; i < user_products.length; i++){
+             let product_user_id = user_products[i].user_id;
+     
+             const user_feedback = await User.getUserById(product_user_id);
+             const user = user_feedback.data;
+     
+             user_products[i]["user"] = user;
+     
+     
+             // push back to an array
+             all_user_products.push(user_products[i]);
+     
+        }
+     
+        console.log("All Products: ", all_user_products);
+
+
+        
         response.send({
             message: "Products retrieved",
             code: "success",
-            data: user_products.data
+            data: all_user_products
         })
     }else{
 

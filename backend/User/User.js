@@ -220,6 +220,34 @@ class User{
     }
 
 
+    async getUserById(user_id){
+
+        const get_user_feedback = await client.db(process.env.DB_NAME).collection("users").findOne({ _id: new ObjectId(user_id) })
+
+        if(get_user_feedback){
+
+            return {
+                message: "User retrieved by their id ",
+                code: "success",
+                data: get_user_feedback
+            }
+
+        }else{
+
+            return {
+                message: "User's data could not be retrieved",
+                code: 'error',
+                data: null
+
+            }
+
+
+        }
+
+
+    }
+
+
     resolveUserId(mongoObjectId){
         
         const user_id = new ObjectId(mongoObjectId).toString();

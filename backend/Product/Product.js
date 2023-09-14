@@ -61,6 +61,9 @@ class Product{
      */
     async getUserProducts(user_id){
 
+
+        // get the user by their user_id 
+
        try{
         const get_products = await client.db(process.env.DB_NAME).collection("products").find({ "user_id": user_id }).toArray()
         if(get_products){

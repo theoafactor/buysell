@@ -54,6 +54,7 @@ function AddProduct(){
          product_description: "",
          product_price: "",
          product_image: null,
+         temporary_url: "",
          is_loading: false,
          form_errors: null,
          message: ""    
@@ -143,11 +144,29 @@ function AddProduct(){
      const handleProductImageInput = (event) => {
 
         let product_image = event.target.files[0];
+
+        const file = event.target.files.item(0);
+
+        const fileReader = new FileReader();
+
+        fileReader.readAsDataURL(file);//read
+
+        fileReader.onload = function(){
+
+            const temporary_url = this.result;
+
+            setProduct({
+                ... product,
+                temporary_url: <img src={temporary_url}></img>,
+                product_image: product_image
+            })
+
+        }
  
-        setProduct({
-         ... product,
-         product_image: product_image
-        })
+        // setProduct({
+        //  ... product,
+        
+        // })
  
      }
 
@@ -192,7 +211,8 @@ function AddProduct(){
                         </div>
 
                         <div className="form-group mt-3">
-                            <label>Product image </label>
+                            <label>Upload Product Image </label>
+                            <div style={{ marginTop: "10px", marginBottom: "20px"}}>{product.temporary_url}</div>
                             <input type="file" onChange={handleProductImageInput} className="form-control"></input>
                         </div>
 

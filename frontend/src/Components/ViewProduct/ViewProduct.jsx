@@ -79,7 +79,7 @@ function ViewProduct(){
  <div className="d-flex flex-row justify-content-center align-items-center gap-2"> 
  <span><i className="fa fa-copy"></i></span> 
  </div> <div className="d-flex flex-row justify-content-center align-items-center mt-3">     
- <span className="number">0 <span className="follow">Products</span></span> </div> 
+ <span className="number">{typeof products !== "undefined" ? products.length : "0"  } <span className="follow">Products</span></span> </div> 
  <div className="d-flex products-settings">
      <li><NavLink to="/user">Go back</NavLink></li>
  </div>
