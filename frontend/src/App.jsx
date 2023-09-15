@@ -11,6 +11,7 @@ import { AuthProvider } from "./Auth/Auth"
 import AddProduct from "./Components/AddProduct/AddProduct"
 import ViewProduct from "./Components/ViewProduct/ViewProduct"
 import Notfound from "./Components/Notfound/Notfound"
+import DefaultUser from "./Components/DefaultUser/Default"
 
 function App(){
 
@@ -22,6 +23,7 @@ function App(){
             <Route path="/" element={<Home/>}></Route>
             <Route path="/login" element={<Login />}></Route>
             <Route path="/register" element={<Register />}></Route>
+            <Route path="/user" element={<DefaultUser />}></Route>
             <Route path="/user/:username" element={<User />}></Route>
             <Route path="/users/verification" element={<VerifyUser />}></Route>
             <Route path="/resend_verification_email" element={<ResendVerification />}></Route>

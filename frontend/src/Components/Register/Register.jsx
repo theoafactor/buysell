@@ -133,7 +133,7 @@ function Register(){
                 is_loading: true
             });
             
-            const feedback = await axios.post("http://localhost:1234/register-user", {
+            const feedback = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/register-user`, {
                 fullname: registerState.fullname,
                 email: registerState.email,
                 username: registerState.username,

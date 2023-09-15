@@ -27,7 +27,7 @@ function ViewProduct(){
     const getProducts = async () => {
 
         const user_token = Cookies.get("buysell_token");
-        const products_feedback = await axios.get("http://localhost:1234/user/get_products", {
+        const products_feedback = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/get_products`, {
             headers: {
                 "Authorization": `Bearer ${user_token}`
             }
@@ -100,7 +100,7 @@ function ViewProduct(){
                     { products.map((product, index) => {
 
                         let product_image_path = product.product_image_path;
-                        product_image_path = `http://localhost:1234${product_image_path.split("public")[1]}`;
+                        product_image_path = `${import.meta.env.VITE_BACKEND_URL}${product_image_path.split("public")[1]}`;
 
                         return (
                             <tr key={index}>

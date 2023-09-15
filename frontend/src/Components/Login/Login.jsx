@@ -23,7 +23,9 @@ function Login(){
   const loginUser = async (event) => {
     event.preventDefault();
 
-    const feedback = await axios.post("http://localhost:1234/login", {
+
+
+    const feedback = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/login`, {
       email: loginState.email,
       password: loginState.password
     })

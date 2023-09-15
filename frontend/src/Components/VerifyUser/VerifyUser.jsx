@@ -15,7 +15,7 @@ function VerifyUser(){
 
     // make an api request to check the verification key
     useEffect(() => {
-        axios.post(`http://localhost:1234/user/verify-user-token/${verificationkey}`).then(( feedback ) => {
+        axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/verify-user-token/${verificationkey}`).then(( feedback ) => {
         let reason_message = "";
 
         console.log(feedback)

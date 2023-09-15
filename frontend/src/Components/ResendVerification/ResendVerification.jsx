@@ -23,7 +23,7 @@ function ResendVerification(){
             is_loading: true
         })
 
-        const feedback = await axios.post("http://localhost:1234/user/verification/resend_verification", {
+        const feedback = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/verification/resend_verification`, {
             email: resendState.email
         })
         

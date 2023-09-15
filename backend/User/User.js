@@ -140,7 +140,7 @@ class User{
         console.log(token)
 
         // build the body of the email
-        const verification_link = `http://localhost:5173/users/verification?verificationkey=${token}`;
+        const verification_link = `${process.env.FRONTEND_URL}/users/verification?verificationkey=${token}`;
         const email_message = `
                             <h4>Please Verify Your Email ${fullname}!</h4>
                             <p>Hello there, please click on the link to verify your email: 

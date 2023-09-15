@@ -35,7 +35,7 @@ function Home(){
         const user_token = Cookies.get("buysell_token");
 
 
-        const products_feedback = await axios.get("http://localhost:1234/users/get_all_products")
+        const products_feedback = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/get_all_products`)
 
         //console.log(products_feedback)
 
@@ -151,7 +151,7 @@ function Home(){
 
                 //console.log(product);
 
-                let product_image_path = "http://localhost:1234" + product.product_image_path.split("public")[1]
+                let product_image_path = `${import.meta.env.VITE_BACKEND_URL}` + product.product_image_path.split("public")[1]
 
                     return (
                         <div className="col mb-5" key={index}>

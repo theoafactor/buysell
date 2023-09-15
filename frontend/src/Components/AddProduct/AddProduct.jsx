@@ -79,7 +79,7 @@ function AddProduct(){
             is_loading: true,
             message: "Please wait ..."
         })
-        const add_product_feedback = await axios.post("http://localhost:1234/add_product", form_data, {
+        const add_product_feedback = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add_product`, form_data, {
             headers: {
                 "Authorization": `Bearer ${user_token}`
             }
