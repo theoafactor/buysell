@@ -9,6 +9,7 @@ function Register(){
     const [registerState, setRegisterState] = useState({
         fullname: "",
         email: "",
+        username: "",
         password: "",
         password_confirm: "",
         is_loading: false,
@@ -28,6 +29,14 @@ function Register(){
         setRegisterState({
             ...registerState,
             email: e.target.value
+        })
+
+    }
+
+    const handleUsernameChange = (e) => {
+        setRegisterState({
+            ...registerState,
+            username: e.target.value
         })
 
     }
@@ -79,6 +88,14 @@ function Register(){
             form_errors["email"] = ""
         }
 
+        let username = registerState.username.trim();
+
+        if(username.length === 0){
+            form_errors["username"] = "You did not enter username"
+        }else{
+            form_errors["username"] = ""
+        }
+
         let password = registerState.password.trim();
 
         if(password.length === 0){
@@ -119,6 +136,7 @@ function Register(){
             const feedback = await axios.post("http://localhost:1234/register-user", {
                 fullname: registerState.fullname,
                 email: registerState.email,
+                username: registerState.username,
                 password: registerState.password
             })
 
@@ -179,6 +197,14 @@ function Register(){
                           <input type="email" name="email" value={registerState.email} onChange={handleEmailChange} className="form-control" id="email" aria-describedby="emailHelp" />
                           <div id="emailHelp" className="form-text">
                           { registerState.form_errors.email }
+                          </div>
+                        </div>
+
+                        <div className="mb-3">
+                          <label for="exampleInputEmail1" className="form-label">Username</label>
+                          <input type="text" name="uername" value={registerState.username} onChange={handleUsernameChange} className="form-control" id="username" aria-describedby="usernameHelp" />
+                          <div id="usernameHelp" className="form-text">
+                          { registerState.form_errors.username }
                           </div>
                         </div>
                         <div className="mb-3">

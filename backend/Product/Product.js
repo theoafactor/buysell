@@ -56,6 +56,34 @@ class Product{
     }
 
     /**
+     * Get all the products in the database
+     */
+    async getAllProducts(){
+
+        try{
+            const get_products = await client.db(process.env.DB_NAME).collection("products").find().toArray();
+            
+            if(get_products){
+                return {
+                    message: "Products retrieved",
+                    data: get_products,
+                    code: 'success'
+                }
+            }
+        
+        }catch(error){
+            return {
+                message: "Products could not be retrieved",
+                reason: error.message,
+                data: [],
+                code: 'error'
+            }
+        }
+
+
+    }
+
+    /**
      * Gets the products belonging to the user with the provided user_id
      * @param {*} user_id - the id of the user
      */

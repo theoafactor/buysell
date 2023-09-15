@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { useAuth } from "../../Auth/Auth"
+import localforage from "localforage"
 
 function Login(){
 
@@ -16,6 +17,7 @@ function Login(){
 
   const use_auth = useAuth();
   const navigate = useNavigate();
+  const [cart, setCart] = useState([]);
 
 
   const loginUser = async (event) => {
@@ -75,6 +77,20 @@ function Login(){
 
   }
 
+  const getCurrentCart = async () => {
+    let current_cart = await localforage.getItem("buysell_cart");
+
+    if(typeof current_cart === "undefined" || current_cart === null){
+        return []
+    }else{
+        return JSON.parse(current_cart)
+    }
+
+
+}
+
+  
+
 
   useEffect(() => {
 
@@ -84,12 +100,19 @@ function Login(){
         })
     }
 
+
+     // // get the current cart
+     getCurrentCart().then((current_cart) => {
+      // set the state 
+      setCart(current_cart);
   })
+
+  }, [])
 
 
     return (
         <>
-            <Nav />
+            <Nav currentCart={cart} />
 
             <div className="row my-5">
                         <div className='col-md-6 m-auto'>

@@ -56,6 +56,7 @@ export const AuthProvider = ({children}) => {
         const user_to_save = {
             fullname: user.fullname,
             email: user.email,
+            username: user.username,
             is_verified: user.is_verified
         }
 
@@ -66,7 +67,7 @@ export const AuthProvider = ({children}) => {
             console.log("User logged in successfully!")
 
             // navigate to the user page
-            navigate("user", {
+            navigate(`user/${user.username}`, {
                 replace: true
             });
 

@@ -92,6 +92,58 @@ server.get("/", (request, response) => {
 });
 
 
+server.get("/users/get_all_products", async (request, response) => {
+
+
+    let all_products_result = await Product.getAllProducts();
+
+
+    if(all_products_result.code === "success"){
+        let all_products = all_products_result.data;
+
+        const all_users_products = [];
+        for(let i = 0; i < all_products.length; i++){
+            let product_user_id = all_products[i].user_id;
+    
+            const user_feedback = await User.getUserById(product_user_id);
+            const user = user_feedback.data;
+    
+            all_products[i]["user"] = user;
+    
+    
+            // push back to an array
+            all_users_products.push(all_products[i]);
+    
+        }
+
+
+        response.send({
+            message: 'All products retrieved',
+            code: "success", 
+            data: all_users_products
+        })
+
+
+    }else{
+
+        response.send({
+            message: "Could not retrieve users' products",
+            code: "error", 
+            data: null
+        })
+
+
+    }
+
+
+    
+
+
+
+
+} )
+
+
 server.get("/user/get_products", verifyToken, async (request, response) => {
     const user_id  = request.user_id;
 
@@ -123,7 +175,7 @@ server.get("/user/get_products", verifyToken, async (request, response) => {
      
         }
      
-        console.log("All Products: ", all_user_products);
+        //console.log("All Products: ", all_user_products);
 
 
         
@@ -378,6 +430,7 @@ server.post("/login", async (request, response) => {
                         data: {
                             fullname: check_feedback.data.fullname,
                             email: check_feedback.data.email,
+                            username: check_feedback.data.username,
                             is_verified: check_feedback.data.is_verified
                         }
                     })
@@ -421,10 +474,11 @@ server.post("/login", async (request, response) => {
 server.post("/register-user", async (request, response) => {
     let fullname = request.body.fullname;
     let email  = request.body.email;
+    let username = request.body.username;
     let password = request.body.password;
 
 
-    const feedback = await User.registerUser(fullname, email, password);
+    const feedback = await User.registerUser(fullname, email, username, password);
 
     if(feedback.code == "success"){
         response.send({

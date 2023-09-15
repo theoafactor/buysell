@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
     secure: false,
     auth: {
       user: "theoafactor@gmail.com",
-      pass: "kgeosqcptpbrctfl",
+      pass: "ufkhlujblxbvvtje",
     }
   });
 
@@ -65,12 +65,19 @@ class User{
     }
 
 
-    async registerUser(fullname, email, password){
+    async registerUser(fullname, email, username, password){
 
         const check_feedback = await this.checkUserExists(email);
 
         if(check_feedback.code === "duplicate-account-error"){
             return check_feedback;
+        }
+
+        // check if the username
+        const check_username_feedback = this.checkUsernameExists(username);
+
+        if(check_username_feedback.code === "duplicate-account-error"){
+            return check_username_feedback;
         }
 
 
@@ -79,6 +86,7 @@ class User{
         const register_feedback = await client.db(process.env.DB_NAME).collection("users").insertOne({
             fullname: fullname,
             email: email,
+            username: username,
             password: password,
             is_verified: false
         });
@@ -87,7 +95,8 @@ class User{
             // send a verification email
             const user = {
                 fullname: fullname,
-                email: email
+                email: email,
+                username: username
             }
 
             const send_email_feedback = await this.sendVerificationEmail(user)
@@ -164,6 +173,31 @@ class User{
 
           }
 
+
+    }
+
+
+    async checkUsernameExists(username){
+
+        username = username.toLowerCase();
+
+        let find_feedback = await client.db(process.env.DB_NAME).collection("users").findOne({"username": username })
+
+        if(find_feedback){
+            // found .. the user exists
+            return {
+                message: "User with the username exists already",
+                code: "duplicate-account-error",
+                data: find_feedback
+            }
+        }else{
+            return {
+                message: "User with the username does not exist",
+                code: "not-exist",
+                data: null
+            }
+
+        }
 
     }
 

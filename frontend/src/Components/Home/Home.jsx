@@ -33,13 +33,11 @@ function Home(){
     const getProducts = async () => {
 
         const user_token = Cookies.get("buysell_token");
-        const products_feedback = await axios.get("http://localhost:1234/user/get_products", {
-            headers: {
-                "Authorization": `Bearer ${user_token}`
-            }
-        })
 
-        console.log(products_feedback)
+
+        const products_feedback = await axios.get("http://localhost:1234/users/get_all_products")
+
+        //console.log(products_feedback)
 
         if(products_feedback){
             return products_feedback.data;
@@ -120,7 +118,7 @@ function Home(){
         })
 
 
-        // get the current cart
+        // // get the current cart
         getCurrentCart().then((current_cart) => {
             // set the state 
             setCart(current_cart);

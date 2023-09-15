@@ -4,6 +4,8 @@ function Nav(props){
 
     console.log("Props", props)
 
+
+
     return (
         <>
             <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -31,7 +33,7 @@ function Nav(props){
             <button className="btn btn-outline-dark" type="submit">
                 <i className="bi-cart-fill me-1"></i>
                 Cart
-                <span className="badge bg-dark text-white ms-1 rounded-pill">{props.currentCart.length}</span>
+                <span className="badge bg-dark text-white ms-1 rounded-pill">{ typeof props.currentCart === "undefined" ? "0": props.currentCart.length }</span>
             </button>
 
             <Link to="/login" className="btn btn-md btn-dark">Post Add</Link>

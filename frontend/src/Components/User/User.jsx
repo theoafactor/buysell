@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import Nav from "../../Sections/Nav/Nav"
 import { useAuth } from "../../Auth/Auth";
 import { useState, useEffect } from "react";
@@ -7,6 +7,9 @@ import "./User.css";
 function User(){
 
     const use_auth = useAuth();
+
+    const { username } = useParams()
+
 
     const navigate = useNavigate();
    
@@ -27,10 +30,21 @@ function User(){
 
         use_auth.getUserData().then((user_data) => {
 
-            console.log(user_data)
+            console.log("User data: ", user_data)
 
             if(user_data !== null){
-                setCurrentUser(user_data)
+
+                if(typeof username === "undefined"){}
+
+                if(user_data.username === username){
+                    setCurrentUser(user_data)
+                }else{
+                    navigate("/error/page-not-found", {
+                        replace: true
+                    })
+                }
+
+              
             }else{
 
                 navigate("/", {
