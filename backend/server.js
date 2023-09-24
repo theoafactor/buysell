@@ -1,6 +1,7 @@
 const express = require("express");
 const UserClass = require("./User/User");
 const ProductClass = require("./Product/Product");
+const ChatClass = require("./Chat/Chat");
 const bcrypt = require("bcrypt");
 const multer  = require('multer')
 const cors = require("cors");
@@ -12,6 +13,7 @@ const Pusher = require("pusher");
 
 const User = new UserClass;
 const Product = new ProductClass;
+const Chat = new ChatClass;
 
 
 const pusher = new Pusher({
@@ -45,7 +47,7 @@ const verifyToken = async (request, response, next) => {
          // get id of the user with the email 
         const get_user_feedback = await User.checkUserExists(request.email);
 
-        console.log(get_user_feedback);
+        //console.log(get_user_feedback);
 
         if(get_user_feedback.code === "duplicate-account-error"){
              const user_id = User.resolveUserId(get_user_feedback.data._id);
@@ -102,18 +104,93 @@ server.get("/", (request, response) => {
 });
 
 
-server.post("/initiate_chat_with_vendor", (request, response) => {
+server.post("/initiate_chat_with_vendor", async (request, response) => {
     const username = request.body.username; // person that wants to start chat
     const vendor_id = request.body.vendor_id; // the vendor to start chat with 
 
-    pusher.trigger("buysell_channel", "chat", {
-        message: "hello world. How are you?"
-      });
+    const check_user_exists_feedback = await User.checkUsernameExists(username);
+    const get_vendor_feedback = await User.getUserById(vendor_id)
+
+    //console.log("Vendor: ", get_vendor_feedback)
+
+    const vendor_email = get_vendor_feedback.data.email;
 
 
-    response.send({
-        message: "Message sent"
-    })
+    //console.log("Check from initiate: ", check_user_exists_feedback);
+
+    if(check_user_exists_feedback.code === "duplicate-account-error"){
+        let user_id = check_user_exists_feedback.data._id;
+
+        user_id = User.resolveUserId(user_id);
+
+        const chat_token = await Chat.initiateChat(user_id, vendor_id);
+
+
+        // - inform the vendor that there is a customer trying to chat to them 
+            // - send an email to the vendor
+            const chat_url = `${process.env.FRONTEND_URL}/chat/with/customer?ctk=${chat_token.data.chat.chat_token}`
+
+
+            const email_message = `<h3>Hello ${get_vendor_feedback.data.fullname}!</h3>
+                                    <p>A customer ${check_user_exists_feedback.data.fullname} wants to chat with you</p>
+                                    <p>Please log into your account to continue with the chat or click the link below to continue: <br>${chat_url}</p>
+                                    <hr>
+                                    <p>From BuySell Team!</p>
+                                    `
+
+
+            const send_email_feedback = await User.sendEmail("theoafactor@gmail.com", vendor_email, "New chat from customer", email_message);
+
+            console.log('Send email: ', send_email_feedback)
+
+        // . Inform the user(customer) that a chat instance has been created 
+
+            if(send_email_feedback){
+
+                const chat_complex_data = {
+                    current_user: {
+                        fullname: check_user_exists_feedback.data.fullname,
+                        email: check_user_exists_feedback.data.email,
+                        username: check_user_exists_feedback.data.username
+                    },
+
+                    current_vendor: {
+                        fullname: get_vendor_feedback.data.fullname,
+                        email: get_vendor_feedback.data.email,
+                        username: get_vendor_feedback.data.username
+                    },
+
+                    chat_token: chat_token.data.chat.chat_token,
+                    code: "chat-initialized"
+                }
+
+                response.send({
+                    message: "chat with vendor initialized",
+                    code: "success", 
+                    data: chat_complex_data
+                })
+
+                    // trigger the user's client if exists
+                    pusher.trigger("buysell_channel", "chat-initialization", {
+                        message: chat_complex_data 
+                    });
+            
+
+
+            }else{
+                response.send({
+                    message: "chat could not be initialized with the vendor at the moment.",
+                    code: "error",
+                    data: null
+                })
+
+
+
+            }
+
+
+        
+    }
 
 
 })
@@ -295,7 +372,7 @@ server.post("/user/verification/resend_verification", async (request, response) 
     }else{
 
         // the user exists, 
-        console.log(check_feedback.data.fullname);
+        //console.log(check_feedback.data.fullname);
 
         const fullname = check_feedback.data.fullname;
 
@@ -331,7 +408,7 @@ server.post("/user/verify-user-token/:token", async (request, response) => {
 
     const token_received = request.params.token;
 
-    console.log(token_received);
+    //console.log(token_received);
 
     // check if this token is correct
     try {
@@ -552,7 +629,7 @@ server.get("/get_vendor_products", async (request, response) => {
             const get_user_products_feedback = await Product.getUserProducts(user_id);
 
 
-            console.log("User Products: ", get_user_products_feedback);
+            //console.log("User Products: ", get_user_products_feedback);
 
             if(get_user_products_feedback.code === "success"){
                 response.send(get_user_products_feedback)

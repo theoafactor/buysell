@@ -19,11 +19,19 @@
           cluster: 'eu'
         });
 
-        console.log("Pusher: ", pusher)
+        // console.log("Pusher: ", pusher)
 
         var channel = pusher.subscribe('buysell_channel');
-        channel.bind('chat', function(data) {
-          alert(JSON.stringify(data));
+        channel.bind('chat-initialization', function(data) {
+
+          // chat information is inside the data 
+          const chat_token = data.message.chat_token;
+
+          //save this chat token to the cookie 
+
+          if(data.message.code === "chat-initialized"){
+              location.replace(`http://localhost:5173/chat/with/vendor?ctk=${data.message.chat_token}`)
+          }
         });
     </script>
   </body>

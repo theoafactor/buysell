@@ -301,6 +301,47 @@ class User{
     }
 
 
+    /**
+     * Sends an email 
+     * @param {*} from_sender_email 
+     * @param {*} to_recepient_email 
+     * @param {*} title 
+     * @param {*} message 
+     */
+    async sendEmail(from_sender_email, to_recepient_email, title, message){
+
+        const info = await transporter.sendMail({
+            from: `"BuySell 👻" <${from_sender_email}>`, // sender address
+            to: to_recepient_email, // list of receivers
+            subject: title, // Subject line
+            html: message, // html body
+          });
+
+
+          if(info){
+
+            return {
+                message: "Email sent successfully!",
+                code: "success",
+                data: null
+            }
+
+
+          }
+        
+          return {
+            message: "Email could not be sent!",
+            code: "error",
+            data: null
+        }
+
+
+
+
+
+    }
+
+
 
 
 }

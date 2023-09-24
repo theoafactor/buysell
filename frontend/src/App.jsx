@@ -13,6 +13,9 @@ import ViewProduct from "./Components/ViewProduct/ViewProduct"
 import Notfound from "./Components/Notfound/Notfound"
 import DefaultUser from "./Components/DefaultUser/Default"
 import Vendor from "./Components/Vendor/Vendor"
+import VendorChatWithCustomer from "./Components/VendorChatWithCustomer/VendorChatWithCustomer"
+import CustomerChatWithVendor from "./Components/CustomerChatWithVendor/CustomerChatWithVendor"
+
 import Pusher from "pusher"
 import { useEffect  } from "react"
 
@@ -46,6 +49,8 @@ function App(){
             <Route path="/resend_verification_email" element={<ResendVerification />}></Route>
             <Route path="/user/products/add-product" element={<AddProduct />}></Route>
             <Route path="/user/products/view-products" element={<ViewProduct />}></Route>
+            <Route path="/chat/with/vendor" element={<CustomerChatWithVendor />}></Route>
+            <Route path="/chat/with/customer" element={<VendorChatWithCustomer />}></Route>
             <Route path="*" element={<Notfound />}></Route>
 
         </Routes>
