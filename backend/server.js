@@ -6,11 +6,21 @@ const multer  = require('multer')
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
+const Pusher = require("pusher");
 
 
 
 const User = new UserClass;
 const Product = new ProductClass;
+
+
+const pusher = new Pusher({
+    appId: "1673960",
+    key: "e060addbfb6121ef75fe",
+    secret: "89f253d8447064449da5",
+    cluster: "eu",
+    useTLS: true
+  });
 
 
 
@@ -91,6 +101,22 @@ server.get("/", (request, response) => {
 
 });
 
+
+server.post("/initiate_chat_with_vendor", (request, response) => {
+    const username = request.body.username; // person that wants to start chat
+    const vendor_id = request.body.vendor_id; // the vendor to start chat with 
+
+    pusher.trigger("buysell_channel", "chat", {
+        message: "hello world. How are you?"
+      });
+
+
+    response.send({
+        message: "Message sent"
+    })
+
+
+})
 
 server.get("/users/get_all_products", async (request, response) => {
 
@@ -509,6 +535,59 @@ server.post("/user-profile", verifyToken, (request, response) => {
     //
 
 } )
+
+
+server.get("/get_vendor_products", async (request, response) => {
+
+    const username = request.query.username;
+
+    // check that the username exists
+    const check_feedback = await User.checkUsernameExists(username)
+
+    if(check_feedback.code !== "not-exist"){
+        
+        const user_id = User.resolveUserId(check_feedback.data._id);
+
+        if(user_id){
+            const get_user_products_feedback = await Product.getUserProducts(user_id);
+
+
+            console.log("User Products: ", get_user_products_feedback);
+
+            if(get_user_products_feedback.code === "success"){
+                response.send(get_user_products_feedback)
+            }else{
+                response.send({
+                    message: "Could not retrieve products",
+                    reason: get_user_products_feedback,
+                    code: "error"
+                })
+            }
+
+
+        }else{
+            response.send({
+                message: "Could not retrieve products",
+                reason: "invalid username",
+                code: "error"
+            })
+
+        }
+
+      
+
+
+    }else{
+        // this user does not exist
+        response.send({
+            message: "Invalid vendor username",
+            code: "error",
+            data: null
+        })
+    }
+
+
+})
 
 
 

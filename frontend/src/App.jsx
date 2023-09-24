@@ -12,8 +12,24 @@ import AddProduct from "./Components/AddProduct/AddProduct"
 import ViewProduct from "./Components/ViewProduct/ViewProduct"
 import Notfound from "./Components/Notfound/Notfound"
 import DefaultUser from "./Components/DefaultUser/Default"
+import Vendor from "./Components/Vendor/Vendor"
+import Pusher from "pusher"
+import { useEffect  } from "react"
 
 function App(){
+
+
+
+
+  useEffect(() => {
+
+  
+
+  })
+
+  
+
+
 
 
     return (
@@ -25,6 +41,7 @@ function App(){
             <Route path="/register" element={<Register />}></Route>
             <Route path="/user" element={<DefaultUser />}></Route>
             <Route path="/user/:username" element={<User />}></Route>
+            <Route path="/vendor/:username" element={<Vendor />}></Route>
             <Route path="/users/verification" element={<VerifyUser />}></Route>
             <Route path="/resend_verification_email" element={<ResendVerification />}></Route>
             <Route path="/user/products/add-product" element={<AddProduct />}></Route>

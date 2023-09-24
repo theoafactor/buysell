@@ -1,6 +1,6 @@
 import { useAuth } from "../../Auth/Auth"
 import { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import Nav from "../../Sections/Nav/Nav"
 import Footer from "../../Sections/Footer/Footer";
@@ -152,6 +152,8 @@ function Home(){
                 //console.log(product);
 
                 let product_image_path = `${import.meta.env.VITE_BACKEND_URL}` + product.product_image_path.split("public")[1]
+                    
+                    let vendor_path = "/vendor/" + product.user.username;
 
                     return (
                         <div className="col mb-5" key={index}>
@@ -163,7 +165,7 @@ function Home(){
                                 <div className="text-center">
                                     
                                     <h5 className="fw-bolder">{product.product_name}</h5>
-                                    <h6><small>By {product.user.fullname}</small></h6>
+                                    <h6><small>By <Link to={vendor_path}>{product.user.fullname}</Link></small></h6>
                                    
                                     NGN {product.product_price}
                                 </div>

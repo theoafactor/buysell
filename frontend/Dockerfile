@@ -14,6 +14,5 @@ COPY --from=STAGE_ONE_BUILD /home/frontend/dist/ /home/frontend/dist/
 COPY package.json .
 COPY vite.config.js .
 EXPOSE 8081
-RUN npm install
 CMD ["npm", "run", "preview"]
 
